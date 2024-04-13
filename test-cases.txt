@@ -1,0 +1,36 @@
+Copy Operation Test Cases:
+- Verify successful upload of Snyk vulnerability report file to specified directory.
+- Test with different valid and invalid paths for the Snyk vulnerability report file.
+- Ensure graceful handling of errors when specified directory is inaccessible or doesn't exist.
+
+Process Operation Test Cases:
+- Verify correct retrieval of Snyk vulnerability report file from specified directory.
+- Test with various valid and invalid paths for the Snyk vulnerability report file.
+- Ensure proper processing of retrieved report file.
+- Test with different types of artifact specifications (URLs or build details).
+
+CopyAndProcess Operation Test Cases:
+- Verify successful copying of Snyk vulnerability report file and its processing.
+- Test with different combinations of artifact specification methods (URLs or build details).
+- Ensure correct setting of properties on designated Artifactory artifacts based on Snyk report.
+- Test cases to ensure proper setting of properties such as scan status, findings present, severity levels, counts, and project link.
+
+Artifact Specification Test Cases:
+- Test with a single valid artifact URL.
+- Test with multiple valid artifact URLs separated by configured delimiter.
+- Ensure graceful handling of invalid URLs.
+- Verify correct processing of artifacts specified by build details (build name, number, and project name).
+
+Edge Cases and Error Handling:
+- Test with edge cases such as empty input fields or unexpected input formats.
+- Verify error handling for scenarios like invalid service connections, missing required parameters, or network failures during file transfer.
+- Test with large Snyk vulnerability report files to ensure performance and resource handling.
+- Ensure proper handling when no Snyk findings are present in the report.
+
+Integration Tests:
+- Execute end-to-end tests within an Azure Pipelines environment to verify task's functionality in real-world scenario.
+- Test with different versions of Azure Pipelines to ensure compatibility.
+
+Documentation and Usage Test Cases:
+- Verify accuracy and completeness of task's documentation.
+- Test with different configurations based on provided examples to ensure clarity in usage instructions.

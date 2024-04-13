@@ -1,0 +1,28 @@
+name: Example workflow using Snyk
+on:
+  push:
+    branches: main
+    
+env:
+  PUBLISHER_ID: ${{ secrets.PUBLISHER_ID }}
+  AZURE_TOKEN: ${{ secrets.AZURE_TOKEN }}
+  
+jobs:
+    develop:
+    
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2  
+          name: Extract Version number
+        - id: set_version
+          run: |
+              content=`cat ./vss-extension.json`
+              content="${content//'%'/'%25'}"
+              content="${content//$'\n'/'%0A'}"
+              content="${content//$'\r'/'%0D'}"
+              echo "::set-output name=vssextensionjson::$content"
+          name: Publish Visual Studio extension
+        - run : |
+            npm install -g tfx-cli
+            npx tfx extension create --output-path --manifest-globs vss-extension.json
+            npx tfx extension publish --auth-type pat -t $AZURE_TOKEN --publisher $PUBLISHER_ID --vsix ./SnykProfessionalServices.snyk-artifactory-upload-${{fromJson(steps.set_version.outputs.vssextensionjson).version}}.vsix
