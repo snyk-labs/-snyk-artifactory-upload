@@ -1,7 +1,7 @@
 name: Example workflow using Snyk
 on:
   push:
-    branches: main
+    branches-ignore: main
     
 env:
   PUBLISHER_ID: ${{ secrets.PUBLISHER_ID }}
@@ -15,13 +15,13 @@ jobs:
           name: Extract Version number
         - id: set_version
           run: |
-              content=`cat ./vss-extension.json`
+              content=`cat ./vss-extension-dev.json`
               content="${content//'%'/'%25'}"
               content="${content//$'\n'/'%0A'}"
               content="${content//$'\r'/'%0D'}"
-              echo "::set-output name=vssextensionjson::$content"
+              echo "::set-output name=vssextensiondevjson::$content"
           name: Publish Visual Studio extension
         - run : |
             npm install -g tfx-cli
-            npx tfx extension create --output-path --manifest-globs vss-extension.json
-            npx tfx extension publish --auth-type pat -t $AZURE_TOKEN --publisher $PUBLISHER_ID --vsix ./SnykProfessionalServices.snyk-artifactory-upload-${{fromJson(steps.set_version.outputs.vssextensionjson).version}}.vsix
+            npx tfx extension create --output-path --manifest-globs vss-extension-dev.json
+            npx tfx extension publish --auth-type pat -t $AZURE_TOKEN --publisher $PUBLISHER_ID --vsix ./SnykProfessionalServices.snyk-artifactory-upload-dev-${{fromJson(steps.set_version.outputs.vssextensiondevjson).version}}.vsix
