@@ -21,6 +21,11 @@
             "path": "task"
         }
     ],
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
     "contributions": [
         {
             "id": "custom-build-release-task",

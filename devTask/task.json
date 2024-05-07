@@ -1,0 +1,118 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+    "id": "2d8ca2db-be04-4062-80ef-e139f39915a2",
+    "name": "snyk-artifactory-upload-dev",
+    "friendlyName": "snyk-artifactory-azure-upload-dev",
+    "description": "Development version to set's properties on Artifactory artifacts with result of snyk SAST scan",
+    "helpMarkDown": "",
+    "category": "Utility",
+    "author": "Snyk",
+    "version": {
+        "Major": 1,
+        "Minor": 1,
+        "Patch": 2
+    },
+    "instanceNameFormat": "Snyk Set Artifactory Properties",
+    "inputs": [
+        {
+            "name": "Operation",
+            "type": "pickList",
+            "label": "Operation",
+            "defaultValue": "CopyAndProcess",
+            "helpMarkDown": "Operation determines the function of the extension, copy (Takes Snyk JSON scan information and uploads it to build directory) should come before process (Updates selected Artifact with Snyk scan details) in the pipeline",
+            "options": {
+                "Copy": "Copy",
+                "Process": "Process",
+                "CopyAndProcess": "CopyAndProcess"
+            },
+            "required": true
+        },
+        {
+            "name": "SnykDirectory",
+            "type": "string",
+            "label": "SnykDirectory",
+            "helpMarkDown": "This determines the location where the Snyk report file will be copied and processed",
+            "required": true
+        },
+        {
+            "name": "artifactoryServiceConnection",
+            "type": "connectedService:jfrogArtifactoryService",
+            "label": "Artifactory Service Connection",
+            "defaultValue": "",
+            "helpMarkDown": "Select the Artifactory service connection.",
+            "visibleRule": "Operation = Process || Operation = CopyAndProcess",
+            "required": true
+        },
+        {
+            "name": "InputType",
+            "type": "pickList",
+            "label": "InputType",
+            "helpMarkDown": "Select how you'd like the extension to determine which Artifacts to set properties on - UrlLIst allows you to Allows you to enter a list of Artifact URL's, and Build will have you enter build details and pull Artifacts from there",
+            "visibleRule": "Operation = Process || Operation = CopyAndProcess",
+            "defaultValue": "Build",
+            "options": {
+                "UrlList": "UrlList",
+                "Build": "Build"
+            }
+        },
+        {
+            "name": "artifactUrls",
+            "type": "string",
+            "label": "artifactUrls",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "A list of artifact url's (excluding base URL) to set properties on. i.e (someartifacts/location,anotherartifacts/location)",
+            "visibleRule": "InputType=UrlList"
+        },
+        {
+            "name": "delimiter",
+            "type": "string",
+            "label": "A char to split the artifact urls with",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "A optional char to split the artifact urls with ",
+            "visibleRule": "InputType=UrlList"
+        },
+        {
+            "name": "BuildName",
+            "type": "string",
+            "label": "BuildName",
+            "defaultValue": "$(Build.DefinitionName)",
+            "required": true,
+            "helpMarkDown": "Name of build from which to pull Artifacts",
+            "visibleRule": "InputType=Build"
+        },
+        {
+            "name": "BuildNumber",
+            "type": "string",
+            "label": "BuildNumber",
+            "defaultValue": "$(Build.BuildNumber)",
+            "required": true,
+            "helpMarkDown": "The build number to search by, can be LATEST for the latest build number",
+            "visibleRule": "InputType=Build"
+        },
+        {
+            "name": "ProjectKey",
+            "type": "string",
+            "label": "ProjectKey",
+            "defaultValue": "$(ProjKey)",
+            "required": true,
+            "helpMarkDown": "The project name to search by",
+            "visibleRule": "InputType=Build"
+        },
+        {
+            "name": "BuildStatus",
+            "type": "string",
+            "label": "BuildStatus",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Optionally search for the latest build status (e.g: Released)",
+            "visibleRule": "InputType=Build"
+        }
+    ],
+    "execution": {
+        "Node16": {
+            "target": "index.js"
+        }
+    }
+}
