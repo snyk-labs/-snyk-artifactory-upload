@@ -73,7 +73,7 @@ function setProperties(properties) {
                 const queryParams = {
                     "properties": [prop] + '=' + properties[prop], // Assuming 'prop' and 'properties' are defined elsewhere
                 };
-                axios_1.default.put(artifactUrl, null, {
+                setTimeout(() => axios_1.default.put(artifactUrl, null, {
                     params: queryParams,
                     headers: headers,
                 })
@@ -81,11 +81,30 @@ function setProperties(properties) {
                     console.log(`Successfully set property '${prop}' on Artifact ${artifactUrlShort}`);
                 })
                     .catch(error => {
-                    //test
                     console.log('Error while attempting to add property to Artifact:' + error);
                     // Handle errors here
-                    process.exit(1); // Exiting with a non-zero code indicating an error
-                });
+                    for (let errorStatus of error.response.data.errors) {
+                        switch (errorStatus.status) {
+                            case 400:
+                                console.log(`Invalid request parameters (headers / body).  See headers here: ${headers} '\n Throwing failing code of 1`);
+                                process.exit(1);
+                            case 401:
+                                console.log(`Endpoint requires authentication, please specify credentials.  Message from endpoint is: ${errorStatus.message}  ${errorStatus.status} \n Throwing failing code of 1`);
+                                process.exit(1);
+                            case 403:
+                                console.log(`Endpoint permission requirements are not met.  Message from endpoint is:  Message from endpoint is: ${errorStatus.message}  ${errorStatus.status} Please check that account has permission to ${prop} property on Artifact ${artifactUrlShort}.`);
+                                console.log(`Artifact URL endpoint that failed ${artifactUrl}`);
+                                process.exit(1);
+                            case 500:
+                                console.log(`Server error!  Unexpected error during request handling, check distribution logs.  Message from endpoint is: ${errorStatus.message}  ${errorStatus.status} \n Throwing failing code of 1`);
+                                process.exit(1);
+                            default:
+                                console.log(`Endpoint failed with the following error: ${error.message} \n Throwing failing code of 1`);
+                                process.exit(1);
+                        }
+                    }
+                    // process.exit(1); // Exiting with a non-zero code indicating an error
+                }), 1000);
             });
         }
     }
@@ -94,7 +113,8 @@ function setProperties(properties) {
         const buildNumber = tl.getInput('BuildNumber', true);
         const projectName = tl.getInput('ProjectKey', true);
         const BuildStatus = tl.getInput('BuildStatus', false);
-        const searchBody = Object.assign({ "buildName": buildName, "buildNumber": buildNumber, "project": projectName }, (BuildStatus !== null && { myProperty: BuildStatus }));
+        const repos = tl.getInput('ArtifactoryRepositoryName', false);
+        const searchBody = Object.assign(Object.assign({ "buildName": buildName, "buildNumber": buildNumber, "project": projectName }, (repos !== undefined && { repos: [repos] })), (BuildStatus !== null && { buildStatus: BuildStatus }));
         const searchUrl = `${baseUrl}/api/search/buildArtifacts`;
         axios_1.default.post(searchUrl, JSON.stringify(searchBody), {
             headers: headers,
@@ -122,15 +142,36 @@ function setProperties(properties) {
                         // Adding a delay between each API call
                     })
                         .catch(error => {
-                        console.log('Error while attempting to add property to Artifact: ' + error);
+                        console.log('Error while attempting to add property to Artifact:' + error);
                         // Handle errors here
-                        process.exit(1); // Exiting with a non-zero code indicating an error
+                        for (let errorStatus of error.response.data.errors) {
+                            switch (errorStatus.status) {
+                                case 400:
+                                    console.log(`Invalid request parameters (headers / body).  See headers here: ${headers} '\n Throwing failing code of 1`);
+                                    process.exit(1);
+                                case 401:
+                                    console.log(`Endpoint requires authentication, please specify credentials.  Message from endpoint is: ${errorStatus.message}  ${errorStatus.status} \n Throwing failing code of 1`);
+                                    process.exit(1);
+                                case 403:
+                                    console.log(`Endpoint permission requirements are not met.  Message from endpoint is:  Message from endpoint is: ${errorStatus.message}  ${errorStatus.status} Please check that account has permission to ${prop} property on Artifact ${artifactUrlShort}.`);
+                                    console.log(`Here is the artifact URL ${artifactUrl}`);
+                                    process.exit(1);
+                                case 500:
+                                    console.log(`Server error!  Unexpected error during request handling, check distribution logs.  Message from endpoint is: ${errorStatus.message}  ${errorStatus.status} \n Throwing failing code of 1`);
+                                    process.exit(1);
+                                default:
+                                    console.log(`Endpoint failed with the following error: ${error.message} \n Throwing failing code of 1`);
+                                    process.exit(1);
+                            }
+                        }
+                        // process.exit(1); // Exiting with a non-zero code indicating an error
                     }), 1000);
                 });
             }
         })
             .catch((error) => {
             console.error('Error from Artifactory search builds API:', error.response ? error.response.data : error.message);
+            console.log(`Artifactory search builds body: \n ${JSON.stringify(searchBody)}`);
             process.exit(1);
         });
     }
