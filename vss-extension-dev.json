@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "snyk-artifactory-upload-dev",
     "name": "Snyk Artifactory Upload (Dev)",
-    "version": "1.1.2",
+    "version": "1.1.51",
     "publisher": "SnykProfessionalServices",
     "icons": {
         "default": "images/extension-icon.png"
@@ -19,9 +19,6 @@
     "files": [
         {
             "path": "task"
-        },
-        {
-            "path": "devTask"
         }
     ],
     "content": {
@@ -37,7 +34,7 @@
                 "ms.vss-distributed-task.tasks"
             ],
             "properties": {
-                "name": "devTask"
+                "name": "task"
             }
         }
     ]

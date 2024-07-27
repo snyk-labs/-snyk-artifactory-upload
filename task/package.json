@@ -10,10 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/winston": "^2.4.4",
     "axios": "^1.6.4",
     "axios-retry": "^4.0.0",
     "azure-pipelines-task-lib": "^4.9.0",
-    "bunyan": "^1.8.15"
+    "bunyan": "^1.8.15",
+    "package-lock.json": "^1.0.0",
+    "typescript": "^5.4.5",
+    "winston": "^3.13.1"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
