@@ -23,5 +23,8 @@ jobs:
           name: Publish Visual Studio extension
         - run : |
             npm install -g tfx-cli
+            cd task
+            npm install
+            cd ..
             npx tfx extension create --output-path --manifest-globs vss-extension-dev.json
             npx tfx extension publish --auth-type pat -t $AZURE_TOKEN --publisher $PUBLISHER_ID --vsix ./SnykProfessionalServices.snyk-artifactory-upload-dev-${{fromJson(steps.set_version.outputs.vssextensiondevjson).version}}.vsix
